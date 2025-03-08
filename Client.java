@@ -8,7 +8,8 @@ class Client {
 	Socket MyClient;
 	BufferedInputStream input;
 	BufferedOutputStream output;
-    	int[][] board = new int[9][9];
+    int[][] board = new int[9][9];
+	GiantBoard giantBoard;
 	
 	try {
 		MyClient = new Socket("localhost", 8888);
@@ -16,6 +17,7 @@ class Client {
 	   	input    = new BufferedInputStream(MyClient.getInputStream());
 		output   = new BufferedOutputStream(MyClient.getOutputStream());
 		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+		giantBoard = new GiantBoard();
 	   	while(1 == 1){
 			char cmd = 0;
 		   	
@@ -43,6 +45,7 @@ class Client {
                 }
 
                 System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
+				giantBoard.getAllMoves(" A0");
                 String move = null;
                 move = console.readLine();
 				output.write(move.getBytes(),0,move.length());
@@ -83,6 +86,9 @@ class Client {
 				
 		String s = new String(aBuffer);
 		System.out.println("Dernier coup :"+ s);
+		giantBoard.play(s, Mark.X);
+		giantBoard.getAllMoves(s);
+
 		System.out.println("Entrez votre coup : ");
 		String move = null;
 		move = console.readLine();
