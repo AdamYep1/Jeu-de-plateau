@@ -3,6 +3,8 @@ import java.util.ArrayList;
 public class GiantBoard {
     static final Move INVALIDE_MOVE = new Move(0, 'A');
     private Board[][] giantBoard;
+    private static int max = 100;
+    private static int min = -100;
 
     // Ne pas changer la signature de cette méthode
     public GiantBoard() {
@@ -54,6 +56,58 @@ public class GiantBoard {
         return moves;
     }
 
+    public int evaluate(Mark mark) {
+        int score = 0; 
+        
+        Mark[][] boardState = new Mark[3][3];
+        for(int i = 0; i < 3; i++){
+            for(int j = 0; j < 3; j++){
+                boardState[i][j] = giantBoard[i][j].getWiningMark();
+            }
+        }
+        
+        return evaluateBoard(mark, boardState);
+    }
+
+     public int evaluateBoard(Mark mark, Mark[][] board){
+        Mark markOpponent = getOpponentMark(mark);
+        if(checkWin(mark, board)){
+            return 100;
+        }
+        if(checkWin(markOpponent, board)){
+            return -100;
+        }
+        if(isFull(board))
+            return 0;
+        
+        int score = 0;
+        return score;
+    }
+
+    public boolean  checkWin(Mark mark, Mark[][]board){
+        for(int i =0 ; i<3 ; i++)
+        {
+            if(board[i][0] == mark && board[i][1] == mark && board[i][2] == mark || 
+               board[0][i] == mark && board[1][i] == mark && board[2][i] == mark)
+                return true;
+        }
+        if(board[0][0] == mark && board[1][1] == mark && board[2][2] == mark||board[0][2] == mark && board[1][1] == mark && board[2][0] == mark)
+            return true;
+        return false;
+    }
+
+    public boolean isFull(Mark[][] board){
+        for(int i = 0; i < board.length; i++){
+            for(int j = 0; j < board[i].length; j++){
+                if (board[i][j] == Mark.EMPTY) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
     public void play(String s, Mark mark){  
         Move move = stringToMove(s);
         int row = (9 - move.getRow())/3;
@@ -72,4 +126,8 @@ public class GiantBoard {
         int row = Character.getNumericValue(charArray[2]);
         return new Move(row, col);
     }
+    public Mark getOpponentMark(Mark mark){
+        return (mark == Mark.X) ? Mark.O : Mark.X;
+    }
+
 }
