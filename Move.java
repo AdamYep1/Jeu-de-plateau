@@ -38,6 +38,6 @@ class Move
         }
     }
     public String toString(){
-        return col+ String.valueOf(row);
+        return " " + col+ String.valueOf(row);
     }
 }

@@ -95,9 +95,10 @@ class Client {
 
 		System.out.println("Entrez votre coup : ");
 		Client client = new Client();
-		String move =client.getNextMoveMinMax(giantBoard, 0, Mark.O, "A0").get(0).toString();
+		String move =client.getNextMoveMinMax(giantBoard, 0, Mark.O, s).get(0).toString();
 		giantBoard.play(move, Mark.O);
-		move = console.readLine();
+        System.out.println("Move : "+move);
+		//move = console.readLine();
 		output.write(move.getBytes(),0,move.length());
 		output.flush();			
 	     }
@@ -132,8 +133,8 @@ class Client {
     }
 	public ArrayList<Move> getNextMoveMinMax(GiantBoard board,int depth, Mark mark, String lastMove )
     {
-		System.out.println("Last Move : "+lastMove);
-		System.out.println("GetNextMoveMinMax");
+		// System.out.println("Last Move : "+lastMove);
+		// System.out.println("GetNextMoveMinMax");
         ArrayList<Move> coupsPossibles = board.getAllMoves(lastMove==null?"A0":lastMove);
         int meilleurScore= Integer.MIN_VALUE;
         ArrayList<Move> meilleursCoups = new ArrayList<>();
@@ -142,7 +143,6 @@ class Client {
 		int beta = Integer.MAX_VALUE;
         for(Move move: coupsPossibles)
         {
-			System.out.println("Move : "+move.toString());
 			String s = move.toString();
             board.play(s, mark);
 			int score = minimax(board,false,mark,0,move,alpha,beta);
@@ -172,7 +172,6 @@ class Client {
 
         // Condition d'arrêt
         if (depth >= 2 || Math.abs(score) == 100 || board.isFull()) {
-            System.out.println("Score : "+score);
             return score;
         }
 
@@ -180,7 +179,10 @@ class Client {
         mark = (mark == Mark.X) ? Mark.O : Mark.X;
         
         ArrayList<Move> coupsPossibles = board.getAllMoves(lastMove.toString());
-
+        if(coupsPossibles.size() == 0) // Cause une erreur puisque le jeux essaie de refaire le meme move
+        {
+            return 0;
+        }
         for (Move move : coupsPossibles) {
             board.play(move.toString(), mark);
             score = minimax(board, !joueurMax, mark, depth + 1, move, alpha, beta);

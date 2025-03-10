@@ -26,7 +26,7 @@ class Board
                 for(int j = 0;  j < board[i].length; j++){
                     if (board[i][j] == Mark.EMPTY) {
                         Move move = new Move(firstMove.getRow() - i, (char)(firstMove.getCol() + j));
-                        System.out.print(move.getCol() + "" + move.getRow());
+                        //System.out.print(move.getCol() + "" + move.getRow());
                         moves.add(move);
                     } else {
                         //System.out.print("XX");
@@ -105,24 +105,19 @@ class Board
     }
 
     public void play(Move m, Mark mark) {
-        System.out.println(m.toString());
-        // Récupérer la position locale dans la sous-grille
-        // int row = m.getRow() % 3 ; 
-        // int col = (m.getCol() - 'A') % 3; 
         int row = firstMove.getRow() - m.getRow();
         int col = m.getCol() - firstMove.getCol(); 
-
         // Vérifier si la case est vide avant de jouer
         if (board[row][col] == Mark.EMPTY) {
             board[row][col] = mark;
         } else {
             throw new IllegalArgumentException("Case déjà occupée !");
         }
-        //this.printSmallBoard();
+        evaluate(mark);
     }
 
     public void undo(Move m){
-        System.out.println("Undo" + m.toString());
+        //System.out.println("Undo" + m.toString());
         int row = firstMove.getRow() - m.getRow();
         int col = m.getCol() - firstMove.getCol();
         if (board[row][col] != Mark.EMPTY) {
