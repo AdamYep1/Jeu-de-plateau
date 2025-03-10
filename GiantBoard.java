@@ -25,6 +25,7 @@ public class GiantBoard {
     public ArrayList<Move> getAllMoves(String lastMove){
         ArrayList<Move> moves = new ArrayList<>();
         Move m = stringToMove(lastMove);
+        System.out.println("get all moves");
         int row = 2;
         int col = 0;
         for (int i = 0; i < m.getRow() - 1; i++){
@@ -46,7 +47,6 @@ public class GiantBoard {
             for(int i = 0; i < giantBoard.length; i++){
                 for(int j = 0;  j < giantBoard[i].length; j++){
                     moves.addAll(giantBoard[i][j].getAllMoves());
-                    System.out.println();
                 }
             }
         } else {
@@ -77,7 +77,7 @@ public class GiantBoard {
         if(checkWin(markOpponent, board)){
             return -100;
         }
-        if(isFull(board))
+        if(isFull())
             return 0;
         
         int score = 0;
@@ -96,10 +96,10 @@ public class GiantBoard {
         return false;
     }
 
-    public boolean isFull(Mark[][] board){
-        for(int i = 0; i < board.length; i++){
-            for(int j = 0; j < board[i].length; j++){
-                if (board[i][j] == Mark.EMPTY) {
+    public boolean isFull(){
+        for(int i = 0; i < giantBoard.length; i++){
+            for(int j = 0; j < giantBoard[i].length; j++){
+                if (!giantBoard[i][j].isFull()) {
                     return false;
                 }
             }
@@ -109,25 +109,54 @@ public class GiantBoard {
 
 
     public void play(String s, Mark mark){  
+        System.out.println("Play" +s);
         Move move = stringToMove(s);
         int row = (9 - move.getRow())/3;
         int col = (move.getCol() - 'A')/3;
         // System.out.println(row);
         // System.out.println(col);
         giantBoard[row][col].play(move, mark);
+        System.out.println("Board global");
+        printGiantBoard();
     }
-
-    public Move stringToMove(String s){
+    public void printGiantBoard() {
+    // Iterate over the giant board's 3x3 grid of sub-grids
+    for (int i = 0; i < giantBoard.length; i++) {
+        for (int j = 0; j < giantBoard[i].length; j++) {
+            // Print the sub-board at position [i][j]
+            giantBoard[i][j].printSmallBoard();
+            if (j < giantBoard[i].length - 1) {
+                System.out.print(" | ");  // Print a separator between sub-grids
+            }
+        }
+        System.out.println();  // Move to the next line after each row of sub-grids
+        if (i < giantBoard.length - 1) {
+            System.out.println("-----------");  // Print a separator between rows of sub-grids
+        }
+    }
+}
+    public Move stringToMove(String s) {
         char[] charArray = new char[s.length()];
         for (int i = 0; i < s.length(); i++) {
             charArray[i] = s.charAt(i);
         }
-        char col = charArray[1];
-        int row = Character.getNumericValue(charArray[2]);
-        return new Move(row, col);
+       
+    char col = s.charAt(0);  // Column is the first character (e.g., 'A')
+    int row = Character.getNumericValue(s.charAt(1));  // Row is the second character (e.g., '1')
+
+    return new Move(row, col);  // Assuming Move constructor takes row and column
+
     }
+
+
     public Mark getOpponentMark(Mark mark){
         return (mark == Mark.X) ? Mark.O : Mark.X;
     }
+
+    public void undoMove(Move move) {
+    int row = (9 - move.getRow()) / 3;
+    int col = (move.getCol() - 'A') / 3;
+    giantBoard[row][col].undo(move);  // Implémenter `removeMove()` dans `Board`
+}
 
 }

@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 
 class Client {
@@ -45,9 +46,13 @@ class Client {
                 }
 
                 System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
-				giantBoard.getAllMoves(" A0");
-                String move = null;
-                move = console.readLine();
+				giantBoard.getAllMoves("A0");
+				System.out.println("Client ");
+				Client client = new Client();
+				String move =client.getNextMoveMinMax(giantBoard, 0, Mark.O, null).get(0).toString();
+				System.out.println("Move : "+move);
+				giantBoard.play(move, Mark.O);
+                //move = console.readLine();
 				output.write(move.getBytes(),0,move.length());
 				output.flush();
             }
@@ -60,7 +65,7 @@ class Client {
 				//System.out.println("size " + size);
 				input.read(aBuffer,0,size);
                 String s = new String(aBuffer).trim();
-                System.out.println(s);
+                System.out.println("m" +s);
                 String[] boardValues;
                 boardValues = s.split(" ");
                 int x=0,y=0;
@@ -73,7 +78,6 @@ class Client {
                     }
                 }
             }
-
 
 			// Le serveur demande le prochain coup
 			// Le message contient aussi le dernier coup joue.
@@ -90,11 +94,12 @@ class Client {
 		giantBoard.getAllMoves(s);
 
 		System.out.println("Entrez votre coup : ");
-		String move = null;
+		Client client = new Client();
+		String move =client.getNextMoveMinMax(giantBoard, 0, Mark.O, "A0").get(0).toString();
+		giantBoard.play(move, Mark.O);
 		move = console.readLine();
 		output.write(move.getBytes(),0,move.length());
-		output.flush();
-				
+		output.flush();			
 	     }
 			// Le dernier coup est invalide
 			if(cmd == '4'){
@@ -125,4 +130,77 @@ class Client {
 	}
 	
     }
+	public ArrayList<Move> getNextMoveMinMax(GiantBoard board,int depth, Mark mark, String lastMove )
+    {
+		System.out.println("Last Move : "+lastMove);
+		System.out.println("GetNextMoveMinMax");
+        ArrayList<Move> coupsPossibles = board.getAllMoves(lastMove==null?"A0":lastMove);
+        int meilleurScore= Integer.MIN_VALUE;
+        ArrayList<Move> meilleursCoups = new ArrayList<>();
+
+		int alpha = Integer.MIN_VALUE;
+		int beta = Integer.MAX_VALUE;
+        for(Move move: coupsPossibles)
+        {
+			System.out.println("Move : "+move.toString());
+			String s = move.toString();
+            board.play(s, mark);
+			int score = minimax(board,false,mark,0,move,alpha,beta);
+
+			if(score > meilleurScore)
+            {
+                meilleurScore = score;
+                meilleursCoups.clear();
+                meilleursCoups.add(move);
+            }
+            else if(score == meilleurScore)
+            {
+                meilleursCoups.add(move);
+            }
+			alpha = Math.max(alpha, meilleurScore);
+			if(alpha >= beta)
+			{
+				break;
+			}
+			board.undoMove(move);
+        }
+		return meilleursCoups;
+    }
+
+	public int minimax(GiantBoard board, boolean joueurMax, Mark mark, int depth, Move lastMove, int alpha, int beta) {
+        int score = board.evaluate(mark);
+
+        // Condition d'arrêt
+        if (depth >= 2 || Math.abs(score) == 100 || board.isFull()) {
+            System.out.println("Score : "+score);
+            return score;
+        }
+
+        int meilleurScore = joueurMax ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        mark = (mark == Mark.X) ? Mark.O : Mark.X;
+        
+        ArrayList<Move> coupsPossibles = board.getAllMoves(lastMove.toString());
+
+        for (Move move : coupsPossibles) {
+            board.play(move.toString(), mark);
+            score = minimax(board, !joueurMax, mark, depth + 1, move, alpha, beta);
+            board.undoMove(move);
+
+            if (joueurMax) {
+                meilleurScore = Math.max(meilleurScore, score);
+                alpha = Math.max(alpha, score);
+            } else {
+                meilleurScore = Math.min(meilleurScore, score);
+                beta = Math.min(beta, score);
+            }
+
+            // Coupure alpha-beta
+            if (beta <= alpha) {
+                break;
+            }
+        }
+
+    return meilleurScore;
+}
+
 }

@@ -37,4 +37,7 @@ class Move
             return false;
         }
     }
+    public String toString(){
+        return col+ String.valueOf(row);
+    }
 }

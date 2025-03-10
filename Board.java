@@ -29,13 +29,32 @@ class Board
                         System.out.print(move.getCol() + "" + move.getRow());
                         moves.add(move);
                     } else {
-                        System.out.print("XX");
+                        //System.out.print("XX");
                     }
                 }
-                System.out.println();
+                //System.out.println();
             }
         }
         return moves;
+    }
+    public void printSmallBoard() {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                // Print the mark in the current cell
+                System.out.print(board[i][j] == Mark.EMPTY ? "-" : board[i][j]);
+                
+                // Print a separator between columns
+                if (j < 2) {
+                    System.out.print(" | ");
+                }
+            }
+            System.out.println(); // Move to the next line after each row
+            
+            // Print a horizontal line separator after each row except the last one
+            if (i < 2) {
+                System.out.println("---------");
+            }
+        }
     }
 
     public int evaluate(Mark mark){
@@ -85,11 +104,29 @@ class Board
         return winingMark;
     }
 
-    public void play(Move m, Mark mark){
+    public void play(Move m, Mark mark) {
+        System.out.println(m.toString());
+        // Récupérer la position locale dans la sous-grille
+        // int row = m.getRow() % 3 ; 
+        // int col = (m.getCol() - 'A') % 3; 
         int row = firstMove.getRow() - m.getRow();
-        int col = m.getCol() - firstMove.getCol();
+        int col = m.getCol() - firstMove.getCol(); 
+
+        // Vérifier si la case est vide avant de jouer
         if (board[row][col] == Mark.EMPTY) {
             board[row][col] = mark;
+        } else {
+            throw new IllegalArgumentException("Case déjà occupée !");
+        }
+        //this.printSmallBoard();
+    }
+
+    public void undo(Move m){
+        System.out.println("Undo" + m.toString());
+        int row = firstMove.getRow() - m.getRow();
+        int col = m.getCol() - firstMove.getCol();
+        if (board[row][col] != Mark.EMPTY) {
+            board[row][col] = Mark.EMPTY;
         }
     }
 }
