@@ -136,6 +136,7 @@ class Client {
 		// System.out.println("Last Move : "+lastMove);
 		// System.out.println("GetNextMoveMinMax");
         ArrayList<Move> coupsPossibles = board.getAllMoves(lastMove==null?"A0":lastMove);
+		System.out.println(coupsPossibles.size());
         int meilleurScore= Integer.MIN_VALUE;
         ArrayList<Move> meilleursCoups = new ArrayList<>();
 

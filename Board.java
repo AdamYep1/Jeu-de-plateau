@@ -122,6 +122,7 @@ class Board
         int col = m.getCol() - firstMove.getCol();
         if (board[row][col] != Mark.EMPTY) {
             board[row][col] = Mark.EMPTY;
+            winingMark = Mark.EMPTY;
         }
     }
 }

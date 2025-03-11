@@ -42,7 +42,7 @@ public class GiantBoard {
                 col++;
             }
         }
-        if (m.equals(INVALIDE_MOVE) || giantBoard[col][row].getWiningMark() != Mark.EMPTY){
+        if (m.equals(INVALIDE_MOVE) || giantBoard[row][col].getWiningMark() != Mark.EMPTY){
             for(int i = 0; i < giantBoard.length; i++){
                 for(int j = 0;  j < giantBoard[i].length; j++){
                     moves.addAll(giantBoard[i][j].getAllMoves());
@@ -138,9 +138,9 @@ public class GiantBoard {
     }
 
     public void undoMove(Move move) {
-    int row = (9 - move.getRow()) / 3;
-    int col = (move.getCol() - 'A') / 3;
-    giantBoard[row][col].undo(move);  // Implémenter `removeMove()` dans `Board`
-}
+        int row = (9 - move.getRow()) / 3;
+        int col = (move.getCol() - 'A') / 3;
+        giantBoard[row][col].undo(move);  // Implémenter `removeMove()` dans `Board`
+    }
 
 }
