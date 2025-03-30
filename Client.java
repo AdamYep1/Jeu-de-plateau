@@ -10,7 +10,7 @@ class Client {
 	BufferedInputStream input;
 	BufferedOutputStream output;
     int[][] board = new int[9][9];
-	GiantBoard giantBoard;
+	GlobalBoard globalBoard;
 	
 	try {
 		MyClient = new Socket("localhost", 8888);
@@ -18,13 +18,14 @@ class Client {
 	   	input    = new BufferedInputStream(MyClient.getInputStream());
 		output   = new BufferedOutputStream(MyClient.getOutputStream());
 		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-		giantBoard = new GiantBoard();
+
+		globalBoard = new GlobalBoard();
 	   	while(1 == 1){
 			char cmd = 0;
-		   	
+		   	 
             cmd = (char)input.read();
             System.out.println(cmd);
-            // Debut de la partie en joueur blanc
+            // Debut de la partie en joueur rouge
             if(cmd == '1'){
                 byte[] aBuffer = new byte[1024];
 				
@@ -45,20 +46,19 @@ class Client {
                     }
                 }
 
-                System.out.println("Nouvelle partie! Vous jouer blanc, entrez votre premier coup : ");
-				giantBoard.getAllMoves("A0");
+                System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
+				//globalBoard.getAllMoves("A0");
 				System.out.println("Client ");
-				Client client = new Client();
-				String move =client.getNextMoveMinMax(giantBoard, 0, Mark.O, null).get(0).toString();
+				String move = getNextMoveMinMax(globalBoard, 0, Mark.O, null).get(0).toString();
 				System.out.println("Move : "+move);
-				giantBoard.play(move, Mark.O);
+				globalBoard.play(move, Mark.O);
                 //move = console.readLine();
 				output.write(move.getBytes(),0,move.length());
 				output.flush();
             }
             // Debut de la partie en joueur Noir
             if(cmd == '2'){
-                System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des blancs");
+                System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des rouges");
                 byte[] aBuffer = new byte[1024];
 				
 				int size = input.available();
@@ -81,49 +81,48 @@ class Client {
 
 			// Le serveur demande le prochain coup
 			// Le message contient aussi le dernier coup joue.
-	    if(cmd == '3'){
-		byte[] aBuffer = new byte[16];
-				
-		int size = input.available();
-		System.out.println("size :" + size);
-		input.read(aBuffer,0,size);
-				
-		String s = new String(aBuffer);
-		System.out.println("Dernier coup :"+ s);
-		giantBoard.play(s, Mark.X);
-		giantBoard.getAllMoves(s);
+	        if(cmd == '3'){
+		        byte[] aBuffer = new byte[16];
+            
+		        int size = input.available();
+		        System.out.println("size :" + size);
+		        input.read(aBuffer,0,size);
+            
+		        String s = new String(aBuffer);
+		        System.out.println("Dernier coup :"+ s);
+		        globalBoard.play(s, Mark.X);
+		        //globalBoard.getAllMoves(s);
 
-		System.out.println("Entrez votre coup : ");
-		Client client = new Client();
-		String move =client.getNextMoveMinMax(giantBoard, 0, Mark.O, s).get(0).toString();
-		giantBoard.play(move, Mark.O);
-        System.out.println("Move : "+move);
-		//move = console.readLine();
-		output.write(move.getBytes(),0,move.length());
-		output.flush();			
-	     }
-			// Le dernier coup est invalide
-			if(cmd == '4'){
+		        System.out.println("Entrez votre coup : ");
+		        String move = getNextMoveMinMax(globalBoard, 0, Mark.O, s).get(0).toString();
+		        globalBoard.play(move, Mark.O);
+                System.out.println("Move : "+move);
+		        //move = console.readLine();
+		        output.write(move.getBytes(),0,move.length());
+		        output.flush();			
+	        }
+		    // Le dernier coup est invalide
+		    if(cmd == '4'){
 				System.out.println("Coup invalide, entrez un nouveau coup : ");
-		       	String move = null;
-				move = console.readLine();
-				output.write(move.getBytes(),0,move.length());
+	           	String move = null;
+	    		move = console.readLine();
+		    	output.write(move.getBytes(),0,move.length());
 				output.flush();
-				
-			}
+                
+	    	}
             // La partie est terminée
-	    if(cmd == '5'){
+	        if(cmd == '5'){
                 byte[] aBuffer = new byte[16];
                 int size = input.available();
                 input.read(aBuffer,0,size);
-		String s = new String(aBuffer);
-		System.out.println("Partie Terminé. Le dernier coup joué est: "+s);
-		String move = null;
-		move = console.readLine();
-		output.write(move.getBytes(),0,move.length());
-		output.flush();
-				
-	    }
+		        String s = new String(aBuffer);
+		        System.out.println("Partie Terminé. Le dernier coup joué est: "+s);
+		        String move = null;
+		        move = console.readLine();
+		        output.write(move.getBytes(),0,move.length());
+		        output.flush();
+            
+	        }
         }
 	}
 	catch (IOException e) {
@@ -131,63 +130,64 @@ class Client {
 	}
 	
     }
-	public ArrayList<Move> getNextMoveMinMax(GiantBoard board,int depth, Mark mark, String lastMove )
+	public static ArrayList<Move> getNextMoveMinMax(GlobalBoard board,int depth, Mark mark, String lastMove )
     {
 		// System.out.println("Last Move : "+lastMove);
 		// System.out.println("GetNextMoveMinMax");
-        ArrayList<Move> coupsPossibles = board.getAllMoves(lastMove==null?"A0":lastMove);
-		System.out.println(coupsPossibles.size());
-        int meilleurScore= Integer.MIN_VALUE;
-        ArrayList<Move> meilleursCoups = new ArrayList<>();
+        ArrayList<Move> possibleMoves = board.getAllMoves(lastMove==null?"A0":lastMove);
+		// System.out.println(coupsPossibles.size());
+        int bestScore= Integer.MIN_VALUE;
+        ArrayList<Move> bestMoves = new ArrayList<>();
 
 		int alpha = Integer.MIN_VALUE;
 		int beta = Integer.MAX_VALUE;
-        for(Move move: coupsPossibles)
+        for(Move move: possibleMoves)
         {
 			String s = move.toString();
             board.play(s, mark);
 			int score = minimax(board,false,mark,0,move,alpha,beta);
+            board.undoMove(move);
 
-			if(score > meilleurScore)
+			if(score > bestScore)
             {
-                meilleurScore = score;
-                meilleursCoups.clear();
-                meilleursCoups.add(move);
+                bestScore = score;
+                bestMoves.clear();
+                bestMoves.add(move);
             }
-            else if(score == meilleurScore)
+            else if(score == bestScore)
             {
-                meilleursCoups.add(move);
+                bestMoves.add(move);
             }
-			alpha = Math.max(alpha, meilleurScore);
+			alpha = Math.max(alpha, bestScore);
 			if(alpha >= beta)
 			{
 				break;
 			}
-			board.undoMove(move);
+			
         }
-		return meilleursCoups;
+		return bestMoves;
     }
 
-	public int minimax(GiantBoard board, boolean joueurMax, Mark mark, int depth, Move lastMove, int alpha, int beta) {
-        int score = board.evaluate(mark);
+	public static int minimax(GlobalBoard globalBoard, boolean joueurMax, Mark mark, int depth, Move lastMove, int alpha, int beta) {
+        int score = globalBoard.evaluate(Mark.O);
 
         // Condition d'arrêt
-        if (depth >= 2 || Math.abs(score) == 100 || board.isFull()) {
+        if (depth >= 7 || Math.abs(score) >= 10000 || globalBoard.isFull()) {
             return score;
         }
 
         int meilleurScore = joueurMax ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         mark = (mark == Mark.X) ? Mark.O : Mark.X;
         
-        ArrayList<Move> coupsPossibles = board.getAllMoves(lastMove.toString());
-        if(coupsPossibles.size() == 0) // Cause une erreur puisque le jeux essaie de refaire le meme move
+        ArrayList<Move> allMoves = globalBoard.getAllMoves(lastMove.toString());
+        if(allMoves.size() == 0) // Cause une erreur puisque le jeux essaie de refaire le meme move
         {
             return 0;
         }
-        for (Move move : coupsPossibles) {
-            board.play(move.toString(), mark);
-            score = minimax(board, !joueurMax, mark, depth + 1, move, alpha, beta);
-            board.undoMove(move);
+        for (Move move : allMoves) {
+            globalBoard.play(move.toString(), mark);
+            score = minimax(globalBoard, !joueurMax, mark, depth + 1, move, alpha, beta);
+            globalBoard.undoMove(move);
 
             if (joueurMax) {
                 meilleurScore = Math.max(meilleurScore, score);
