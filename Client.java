@@ -11,7 +11,7 @@ class Client {
 	BufferedOutputStream output;
     int[][] board = new int[9][9];
 	GlobalBoard globalBoard;
-	
+	Mark markAI = Mark.EMPTY;
 	try {
 		MyClient = new Socket("localhost", 8888);
 
@@ -47,11 +47,12 @@ class Client {
                 }
 
                 System.out.println("Nouvelle partie! Vous jouer rouge, entrez votre premier coup : ");
+                markAI = Mark.X;
 				//globalBoard.getAllMoves("A0");
 				System.out.println("Client ");
-				String move = getNextMoveMinMax(globalBoard, 0, Mark.O, null).get(0).toString();
+				String move = getNextMoveMinMax(globalBoard, 0, markAI, null).get(0).toString();
 				System.out.println("Move : "+move);
-				globalBoard.play(move, Mark.O);
+				globalBoard.play(move, markAI);
                 //move = console.readLine();
 				output.write(move.getBytes(),0,move.length());
 				output.flush();
@@ -59,6 +60,7 @@ class Client {
             // Debut de la partie en joueur Noir
             if(cmd == '2'){
                 System.out.println("Nouvelle partie! Vous jouer noir, attendez le coup des rouges");
+                markAI = Mark.O;
                 byte[] aBuffer = new byte[1024];
 				
 				int size = input.available();
@@ -90,12 +92,12 @@ class Client {
             
 		        String s = new String(aBuffer);
 		        System.out.println("Dernier coup :"+ s);
-		        globalBoard.play(s, Mark.X);
+		        globalBoard.play(s, markAI==Mark.X?Mark.O:Mark.X);
 		        //globalBoard.getAllMoves(s);
 
 		        System.out.println("Entrez votre coup : ");
-		        String move = getNextMoveMinMax(globalBoard, 0, Mark.O, s).get(0).toString();
-		        globalBoard.play(move, Mark.O);
+		        String move = getNextMoveMinMax(globalBoard, 0, markAI, s).get(0).toString();
+		        globalBoard.play(move, markAI);
                 System.out.println("Move : "+move);
 		        //move = console.readLine();
 		        output.write(move.getBytes(),0,move.length());
@@ -169,7 +171,7 @@ class Client {
     }
 
 	public static int minimax(GlobalBoard globalBoard, boolean joueurMax, Mark mark, int depth, Move lastMove, int alpha, int beta) {
-        int score = globalBoard.evaluate(Mark.O);
+        int score = globalBoard.evaluate(mark);
 
         // Condition d'arrêt
         if (depth >= 7 || Math.abs(score) >= 10000 || globalBoard.isFull()) {
@@ -177,7 +179,7 @@ class Client {
         }
 
         int meilleurScore = joueurMax ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-        mark = (mark == Mark.X) ? Mark.O : Mark.X;
+        Mark joueurActuel = joueurMax ? mark: mark == Mark.X ? Mark.O : Mark.X;
         
         ArrayList<Move> allMoves = globalBoard.getAllMoves(lastMove.toString());
         if(allMoves.size() == 0) // Cause une erreur puisque le jeux essaie de refaire le meme move
@@ -185,7 +187,7 @@ class Client {
             return 0;
         }
         for (Move move : allMoves) {
-            globalBoard.play(move.toString(), mark);
+            globalBoard.play(move.toString(), joueurActuel);
             score = minimax(globalBoard, !joueurMax, mark, depth + 1, move, alpha, beta);
             globalBoard.undoMove(move);
 
