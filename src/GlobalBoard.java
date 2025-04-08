@@ -4,8 +4,8 @@ public class GlobalBoard {
     static final Move INVALIDE_MOVE = new Move(0, 'A');
     private LocalBoard[][] globalBoard;
 
-    protected static final int WIN_SCORE = 10000;
-    protected static final int LOSE_SCORE = -10000;
+    public static final int WIN_SCORE = 10000;
+    public static final int LOSE_SCORE = -10000;
     protected static final int LOCAL_WIN_SCORE = 100;
     protected static final int LOCAL_LOSE_SCORE = -100;
     protected static final int POTENTIAL_WIN_SCORE = 15;
@@ -27,6 +27,13 @@ public class GlobalBoard {
             cptC = 'A';
             cptR = cptR - 3;
         }
+    }
+
+    public GlobalBoard(GlobalBoard board) {
+        this.globalBoard = board.getBoard();
+    }
+    public LocalBoard[][] getBoard(){
+        return globalBoard;
     }
 
     public ArrayList<Move> getAllMoves(String lastMove){
