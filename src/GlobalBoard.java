@@ -10,8 +10,6 @@ public class GlobalBoard {
     protected static final int LOCAL_LOSE_SCORE = -100;
     protected static final int POTENTIAL_WIN_SCORE = 15;
     protected static final int STRATEGIC_BOARD_SCORE = 20;
-    protected static final int CENTER_CONTROL_SCORE = 50;
-    protected static final int MOBILITY_SCORE = 2;
 
     // Ne pas changer la signature de cette méthode
     public GlobalBoard() {
@@ -193,7 +191,7 @@ public class GlobalBoard {
             row = Character.getNumericValue(s.charAt(1));
        }
 
-        return new Move(row, col);  // Assuming Move constructor takes row and column
+        return new Move(row, col);  
     }
 
 
@@ -204,7 +202,7 @@ public class GlobalBoard {
     public void undoMove(Move move) {
         int row = (9 - move.getRow()) / 3;
         int col = (move.getCol() - 'A') / 3;
-        globalBoard[row][col].undo(move);  // Implémenter `removeMove()` dans `Board`
+        globalBoard[row][col].undo(move);  
     }
 
 }

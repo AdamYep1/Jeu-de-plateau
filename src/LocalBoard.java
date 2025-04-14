@@ -26,13 +26,9 @@ class LocalBoard
                 for(int j = 0;  j < board[i].length; j++){
                     if (board[i][j] == Mark.EMPTY) {
                         Move move = new Move(firstMove.getRow() - i, (char)(firstMove.getCol() + j));
-                        //System.out.print(move.getCol() + "" + move.getRow());
                         moves.add(move);
-                    } else {
-                        //System.out.print("XX");
                     }
                 }
-                //System.out.println();
             }
         }
         return moves;
@@ -40,17 +36,14 @@ class LocalBoard
     public void printSmallBoard() {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                // Print the mark in the current cell
                 System.out.print(board[i][j] == Mark.EMPTY ? "-" : board[i][j]);
                 
-                // Print a separator between columns
                 if (j < 2) {
                     System.out.print(" | ");
                 }
             }
-            System.out.println(); // Move to the next line after each row
+            System.out.println(); 
             
-            // Print a horizontal line separator after each row except the last one
             if (i < 2) {
                 System.out.println("---------");
             }
@@ -61,18 +54,10 @@ class LocalBoard
         Mark markOpponent = getOpponentMark(mark);
         if(checkWin(mark)){
             winingMark = mark;
-            //return LOCAL_WIN_SCORE;
         }
         if(checkWin(markOpponent)){
             winingMark = markOpponent;
-            //return LOCAL_LOSE_SCORE;
         }
-        //if(isFull())
-            //return 0;
-        
-        //int score = 0;
-
-        //return score;
     }
 
     public boolean checkWin(Mark mark){
@@ -142,13 +127,6 @@ class LocalBoard
         
         return control;
     }
-    // public boolean isStrategicPosition(Move move) {
-    //     return (move.getRow() == 1 && move.getCol() == 1) || // Centre
-    //            (move.getRow() == 0 && move.getCol() == 0) || // Coin
-    //            (move.getRow() == 0 && move.getCol() == 2) || // Coin
-    //            (move.getRow() == 2 && move.getCol() == 0) || // Coin
-    //            (move.getRow() == 2 && move.getCol() == 2);   // Coin
-    // }
 
     public Mark getOpponentMark(Mark mark){
         return (mark == Mark.X) ? Mark.O : Mark.X;
@@ -182,7 +160,6 @@ class LocalBoard
     }
 
     public void undo(Move m){
-        //System.out.println("Undo" + m.toString());
         int row = firstMove.getRow() - m.getRow();
         int col = m.getCol() - firstMove.getCol();
         if (board[row][col] != Mark.EMPTY) {
